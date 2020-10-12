@@ -1,0 +1,83 @@
+# launch Qiime2
+conda env create -n qiime2-2020.2 --file qiime2-2020.2-py36-osx-conda.yml
+
+conda activate qiime2-2020.2
+
+# import sequence file
+qiime tools import \
+--type 'SampleData[PairedEndSequencesWithQuality]' \  # type of sequences input
+--input-path # filepath of Manifest file (.csv, comma separated)
+--output-path # filepath/paired-end-demux.qza  # where to save processed files
+--input-format PairedEndFastqManifestPhred33 # format is dependent on phred format and paired/single reads
+
+# to view demux files (.qzv)
+qiime demux summarize \
+--i-data filepath/paired-end-demux.qza # file to be viewed
+--o-visualization filepath/paired-end-demux.qzv # output path of generated file
+
+qiime tools view filepath/demux.qzv
+
+
+# removing adapters (primers, barcodes, etc.) using cutadapt
+qiime cutadapt trim-paired \
+--i-demultiplexed-sequences # filepath of demultiplexed artifact \
+--p-cores 16 \ # no. of CPU cores to use, optional
+--p-front-f CCTACGGGNGGCWGCAG \ # Forward adapter sequence (341F)
+--p-front-r GACTACHVGGGTATCTAAKCC \ # Reverse primer sequence (785R)
+--p-overlap 10 \
+--p-error-rate 0.2 \
+--p-no-indels \
+--p-discard-untrimmed \
+--o-trimmed-sequences filepath/primer-trimmed-demux.qza \ # output path
+--verbose # to monitor trimming
+&> /filepath/primer-trimmed.log
+
+# visualizing dada2-denoised data
+# Denoising stats
+qiime metadata tabulate \
+--m-input-file /filepath/denoising_stats.qza \
+--o-visualization /filepath/denoising_stats.qzv \
+
+# Representative sequences
+qiime feature-table tabulate-seqs \
+--i-data /filepath/representative_sequences.qza \
+--o-visualization /filepath/rep_seqs.qzv \
+
+# Feature table
+qiime feature-table summarize \
+--i-table /filepath/table.qza \
+--o-visualization /filepath/table.qzv \
+
+
+# exporting artifacts
+qiime tools extract \
+--input-path /filepath/file.qza
+--output-path /filepath/folder-name # generate a .biom file
+
+
+# generate ASV/OTU table
+qiime diversity alpha \
+--i-table #filepath/table.qza \
+--p-metric 'observed_otus'
+--o-alpha-diversity #filepath/observed_otus.qza
+
+qiime metadata tabulate \
+--m-input-file #filepath/observed_otus.qza
+--o-visualization #filepath/observed_otus.qzv
+
+
+# no. of phyla/genera/species etc.
+qiime taxa collapse \
+--i-table /filepath/table.qza
+--i-taxonomy /filepath/classified-seqs.qza
+--p-level # desired taxonomic depth
+--o-collapsed-table /filepath/collapsed-table.qza
+
+qiime diversity alpha \
+--i-table /filepath/collapsed-table.qza
+--p-metric 'observed_otus'
+--o-alpha-diversity /filepath/observed-xyz.qza
+
+qiime metadata tabulate \
+--m-input-file /filepath/observed-xyz.qza
+--o-visualization /filepath/observed-xyz.qzv
