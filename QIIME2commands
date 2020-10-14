@@ -3,6 +3,7 @@ conda env create -n qiime2-2020.2 --file qiime2-2020.2-py36-osx-conda.yml
 
 conda activate qiime2-2020.2
 
+
 # import sequence file
 qiime tools import \
 --type 'SampleData[PairedEndSequencesWithQuality]' \  # type of sequences input
@@ -31,6 +32,21 @@ qiime cutadapt trim-paired \
 --o-trimmed-sequences filepath/primer-trimmed-demux.qza \ # output path
 --verbose # to monitor trimming
 &> /filepath/primer-trimmed.log
+
+
+# trim and filter
+qiime dada2 denoise-paired \
+--i-demultiplexed-seqs # filepath of demultiplexed artifact (e.g. primer-clipped-demux.qza)
+--p-trunc-len-f # integer (position at which forward read sequences should be truncated, based on quality of reads, e.g. 250)
+--p-trunc-len-r # integer (position at which reverse read sequences should be truncated, based on quality of reads, e.g. 250)
+--p-max-ee-f 2.0 float (reads with number of errors higher than this value will be discarded, default: 2.0)
+--p-max-ee-r 5.0 float (reads with number of errors higher than this value will be discarded, default: 2.0)
+--p-chimera-method 'consensus' 
+--p-n-threads 16 # The number of threads to use for multithreaded processing. If 0 is provided, all available cores will be used.  
+--o-table /filepath/primer-clipped-dada-table.qza \ (Feature Table)
+--o-representative-sequences /filepath/primer-clipped-dada-repseqs.qza \
+--o-denoising-stats /filepath/dada-stats.qza \
+--verbose
 
 # visualizing dada2-denoised data
 # Denoising stats
