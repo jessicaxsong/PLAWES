@@ -1,11 +1,15 @@
-# launch Qiime2
+# LAUNCH/UPDATE QIIME2
+
 conda env create -n qiime2-2020.2 --file qiime2-2020.2-py36-osx-conda.yml
 
 conda activate qiime2-2020.2
 
+
 ----
 
-# import sequence file
+
+# IMPORTING SEQUENCES
+
 qiime tools import \
 --type 'SampleData[PairedEndSequencesWithQuality]' \  # type of sequences input
 --input-path # filepath of Manifest file (.csv, comma separated)
@@ -19,9 +23,12 @@ qiime demux summarize \
 
 qiime tools view filepath/demux.qzv
 
+
 ----
 
-# removing adapters (primers, barcodes, etc.) using cutadapt
+
+# ADAPTER REMOVAL (primers, barcodes, etc.)
+
 qiime cutadapt trim-paired \
 --i-demultiplexed-sequences # filepath of demultiplexed artifact \
 --p-cores 16 \ # no. of CPU cores to use, optional
@@ -35,9 +42,13 @@ qiime cutadapt trim-paired \
 --verbose # to monitor trimming
 &> /filepath/primer-trimmed.log
 
+
 ----
 
-# trim and filter
+
+# TRIM AND FILTER
+
+# denoising with dada2
 qiime dada2 denoise-paired \
 --i-demultiplexed-seqs # filepath of demultiplexed artifact (e.g. primer-clipped-demux.qza)
 --p-trunc-len-f # integer (position at which forward read sequences should be truncated, based on quality of reads, e.g. 250)
@@ -71,7 +82,26 @@ qiime feature-table summarize \
 ----
 
 
-# assign taxonomy
+# MERGING DATA
+
+# merge tables
+qiime feature-table merge \
+--i-tables /filepath/dada-table1.qza \
+--i-tables /filepath/dada-table2.qza \
+--o-merged-table /filepath/merged-table.qza
+
+# merge representative sequences
+qiime feature-table merge-seqs \
+--i-data /filepath/repseqs1.qza \
+--i-data /filepath/repseqs2.qza
+--o-merged-data /filepath/merged-repseqs.qza
+
+
+----
+
+
+# ASSIGNING TAXONOMIES
+
 # get silva references
 wget https://www.arb-silva.de/fileadmin/silva_databases/qiime/Silva_132_release.zip
 unzip Silva_132_release.zip
@@ -107,11 +137,35 @@ qiime feature-classifier fit-classifier-naive-bayes \
 --o-classifier '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16_classifier_V3-V4.qza' 
 --verbose
 
+# classify representative sequences
+qiime feature-classifier classify-sklearn \
+--i-classifier /home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16_classifier_V3-V4.qza
+--i-reads /filepath/repseqs.qza
+--p-n-jobs 8
+--o-classification /filepath/classified-repseqs.qza
+
+# visualize classified representative sequences
+qiime metadata tabulate
+--m-input-file /filepath/classified-repseqs.qza
+--o-visualization /filepath/classified-repseqs.qzv
+
 
 ----
 
 
-# exporting artifacts
+# ANALYZING TAXONOMIES
+
+qiime taxa barplot \
+--i-table /filepath/merged-table.qza
+--i-taxonomy /filepath/classified-repseqs.qza
+--m-metadata-file /filepath/sample-metadata.txt
+--o-visualization /filepath/taxa-barplots.qzv
+
+----
+
+
+# EXPORTING ARTIFACTS
+
 qiime tools extract \
 --input-path /filepath/file.qza
 --output-path /filepath/folder-name # generate a .biom file
@@ -120,7 +174,8 @@ qiime tools extract \
 ----
 
 
-# generate ASV/OTU table
+# GENERATING ASV/OTU TABLES
+
 qiime diversity alpha \
 --i-table #filepath/table.qza \
 --p-metric 'observed_otus'
@@ -131,7 +186,8 @@ qiime metadata tabulate \
 --o-visualization #filepath/observed_otus.qzv
 
 
-# no. of phyla/genera/species etc.
+# NO. OF PHYLA/GENERA/SPECIES etc.
+
 qiime taxa collapse \
 --i-table /filepath/table.qza
 --i-taxonomy /filepath/classified-seqs.qza
@@ -141,7 +197,7 @@ qiime taxa collapse \
 qiime diversity alpha \
 --i-table /filepath/collapsed-table.qza
 --p-metric 'observed_otus'
---o-alpha-diversity /filepath/observed-xyz.qza
+--o-alpha-diversity /filepath/observed-xyz.qza # xyz = phyla, genera, species etc.
 
 qiime metadata tabulate \
 --m-input-file /filepath/observed-xyz.qza
