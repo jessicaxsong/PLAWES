@@ -1,0 +1,14 @@
+# INSTALL MINICONDA
+
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# test installation
+conda list
+
+# update
+conda update conda
+
+# installing wget
+conda install wget
+
+
