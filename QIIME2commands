@@ -3,6 +3,7 @@ conda env create -n qiime2-2020.2 --file qiime2-2020.2-py36-osx-conda.yml
 
 conda activate qiime2-2020.2
 
+----
 
 # import sequence file
 qiime tools import \
@@ -18,6 +19,7 @@ qiime demux summarize \
 
 qiime tools view filepath/demux.qzv
 
+----
 
 # removing adapters (primers, barcodes, etc.) using cutadapt
 qiime cutadapt trim-paired \
@@ -33,6 +35,7 @@ qiime cutadapt trim-paired \
 --verbose # to monitor trimming
 &> /filepath/primer-trimmed.log
 
+----
 
 # trim and filter
 qiime dada2 denoise-paired \
@@ -65,10 +68,56 @@ qiime feature-table summarize \
 --o-visualization /filepath/table.qzv \
 
 
+----
+
+
+# assign taxonomy
+# get silva references
+wget https://www.arb-silva.de/fileadmin/silva_databases/qiime/Silva_132_release.zip
+unzip Silva_132_release.zip
+rm Silva_132_release.zip
+
+# import reference sequences
+qiime tools import \
+--type 'FeatureData[Sequence]'
+--input-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/Silva_132_release/SILVA_132_QIIME_release/rep_set/rep_set_16S_only/99/silva_132_99_16S.fna'
+--output-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-seqs.qza'
+
+# import taxonomy strings
+--type 'FeatureData[Taxonomy]'
+--input-format HeaderlessTSVTaxonomyFormat
+--input-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/Silva_132_release/SILVA_132_QIIME_release/taxonomy/16S_only/99/majority_taxonomy_7_levels.txt'
+--output-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-taxonomy.qza'
+
+# extract V3-V4 region from reference
+qiime feature-classifier extract-reads
+--i-sequences '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-seqs.qza' 
+--p-f-primer CCTACGGGNGGCWGCAG 
+--p-r-primer GACTACHVGGGTATCTAAKCC 
+--p-min-length 300 
+--p-max-length 600 
+--o-reads '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16S_refseqs_V3-V4.qza' 
+--verbose 
+&>'/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16S_refseqs_V3-V4_training.log'
+
+# train classifier in V3-V4 region
+qiime feature-classifier fit-classifier-naive-bayes \
+--i-reference-reads '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16S_refseqs_V3-V4.qza' 
+--i-reference-taxonomy '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-taxonomy.qza' 
+--o-classifier '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16_classifier_V3-V4.qza' 
+--verbose
+
+
+----
+
+
 # exporting artifacts
 qiime tools extract \
 --input-path /filepath/file.qza
 --output-path /filepath/folder-name # generate a .biom file
+
+
+----
 
 
 # generate ASV/OTU table
