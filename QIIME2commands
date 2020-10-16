@@ -185,7 +185,7 @@ qiime tools extract \
 
 qiime diversity alpha \
 --i-table #filepath/table.qza \
---p-metric 'observed_otus'
+--p-metric 'observed_features'
 --o-alpha-diversity #filepath/observed_otus.qza
 
 qiime metadata tabulate \
