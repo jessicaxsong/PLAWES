@@ -155,6 +155,13 @@ qiime metadata tabulate
 
 # ANALYZING TAXONOMIES
 
+# filter feature table (remove 'missing features')
+qiime feature-table filter-features \
+--i-table /filepath/merged-table.qza
+--m-metadata-file /filepath/classified-repseqs.qza
+--o-filtered-table /filepath/merged-table-filtered.qza
+
+
 qiime taxa barplot \
 --i-table /filepath/merged-table.qza
 --i-taxonomy /filepath/classified-repseqs.qza
