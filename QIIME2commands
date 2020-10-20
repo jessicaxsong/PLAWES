@@ -153,6 +153,27 @@ qiime metadata tabulate
 ----
 
 
+# FILTERING CLASSIFIED READS
+
+qiime taxa filter-table \
+--i-table /filepath/merged-table.qza
+--i-taxonomy /filepath/classified-reqseqs.qza
+--p-exclude "D_0__Eukaryota"
+--o-filtered-table /filepath/merged-table-filtered1.qza
+
+qiime taxa filter-table \
+--i-table /filepath/merged-table-filtered1.qza
+--i-taxonomy /filepath/classified-repseqs.qza
+--p-include D_1__
+--p-exclude mitochondria,chloroplast
+--o-filtered-table /filepath/merged-table-filtered-final.qza
+
+# visualizing feature counts
+qiime feature-table summarize
+--m-input-file /filepath/merged-table-filtered.qza
+--o-visualization /filepath/merged-table-filtered.qza
+
+
 # ANALYZING TAXONOMIES
 
 # filter feature table (remove 'missing features')
