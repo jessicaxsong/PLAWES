@@ -155,8 +155,14 @@ qiime metadata tabulate
 
 # FILTERING CLASSIFIED READS
 
-qiime taxa filter-table \
+# filter out blanks or selected samples (identifier-based)
+qiime feature-table filter-features \
 --i-table /filepath/merged-table.qza
+--m-metadata-file /filepath/samples-to-keep.txt
+--o-filtered-table /filepath/merged-table-filtered.qza
+
+qiime taxa filter-table \
+--i-table /filepath/merged-table-filtered.qza
 --i-taxonomy /filepath/classified-reqseqs.qza
 --p-exclude "D_0__Eukaryota"
 --o-filtered-table /filepath/merged-table-filtered1.qza
