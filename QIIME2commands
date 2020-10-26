@@ -225,7 +225,7 @@ qiime diversity alpha \
 --p-metric 'shannon' / 'pielou_e' / 'chao1'
 --o-alpha-diversity /filepath/16s-alpha.qza
 
-qiime alpha-group-significance \
+qiime diversity alpha-group-significance \
 --i-alpha-diversity /filepath/16s-alpha.qza
 --m-metadata-file /filepath/metadata.txt
 --o-visualization /filepath/16s-alpha-significance.qzv
