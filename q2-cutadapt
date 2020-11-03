@@ -1,0 +1,42 @@
+# ADAPTER/PRIMER REMOVAL
+
+# 341F; 785R primer sets (CCTACGGGNGGCWGCAG; GACTACHVGGGTATCTAAKCC)
+
+# for 5'-anchored primers
+qiime cutadapt trim-paired \
+--i-demultiplexed-sequences /demux.qza \
+--p-cores 16 \
+--p-front-f ^CCTACGGGNGGCWGCAG \
+--p-front-r ^GACTACHVGGGTATCTAAKCC \
+--p-error-rate 0.1 [default] \
+--p-overlap 3 [default] \
+--p-discard-untrimmed \
+--o-trimmed-sequence /trimmed-demux.qza
+--verbose &> /primer-trimming.log
+
+# for linked adapters
+qiime cutadapt trim-paired \
+--i-demultiplexed-seqs /demux.qza \
+--p-cores 16 \
+--p-adapter-f CCTACGGGNGGCWGCAG...GGMTTAGATACCCBDGTAGTC \
+--p-adapter-r GACTACHVGGGTATCTAAKCC...CTGCWGCCNCCCGTAGG \
+--p-error-rate 0.1 [default] \
+--p-discard-untrimmed \
+--o-trimmed-sequences /trimmed-demux.qza \
+--verbose &> /primer-trimming.log
+
+# for mixed orientation reads (Fw-Rev, Rev-Fw); both primers present in each F and R read
+qiime cutadapt trim-paired \
+--i-demultiplexed-seqs /demux.qza \
+--p-cores 16 \
+--p-front-f CCTACGGGNGGCWGCAG  GACTACHVGGGTATCTAAKCC \ # double space between primer seqs
+--p-front-r GACTACHVGGGTATCTAAKCC  CCTACGGGNGGCWGCAG \
+--p-error-rate 0.1 [default] \
+--p-overlap 3 [default] \
+--p-discard-untrimmed \
+--o-trimmed-sequences /trimmed-demux.qza
+--verbose &> /primer-trimming.log
+
+**for matching IUPAC wildcards, include flags:
+--p-match-adapter-wildcards
+--p-match-read-wildcards
