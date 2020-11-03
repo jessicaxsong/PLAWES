@@ -25,7 +25,7 @@ qiime cutadapt trim-paired \
 --o-trimmed-sequences /trimmed-demux.qza \
 --verbose &> /primer-trimming.log
 
-# for mixed orientation reads (Fw-Rev, Rev-Fw); both primers present in each F and R read
+# for mixed orientation reads* (Fw-Rev, Rev-Fw); both primers present in each F and R read
 qiime cutadapt trim-paired \
 --i-demultiplexed-seqs /demux.qza \
 --p-cores 16 \
@@ -40,3 +40,6 @@ qiime cutadapt trim-paired \
 **for matching IUPAC wildcards, include flags:
 --p-match-adapter-wildcards
 --p-match-read-wildcards
+
+
+*to orient in the right direction, see: https://forum.qiime2.org/t/processing-filtering-and-evaluating-the-silva-database-and-other-reference-sequence-data-with-rescript/15494
