@@ -1,0 +1,30 @@
+# check sequence quality
+conda install -c bioconda -c conda-forge multiqc
+
+multiqc /fastqc-files -o /outputdir -n multiqc.html
+
+# import sequences
+qiime tools import \
+--type 'SampleData[PairedEndSequencesWithQuality]' 
+--input-path /PLAWES/manifests/primer-clipped.csv
+--output-path /PLAWES/processed-data/all-samples/1-demux/trimmed-demux.qza  
+--input-format PairedEndFastqManifestPhred33V2
+
+# view demux file
+qiime demux summarize
+--i-data /PLAWES/processed-data/all-samples/1-demux/trimmed-demux.qza 
+--o-visualization /PLAWES/processed-data/all-samples/1-demux/trimmed-demux.qzv 
+
+# trim and filter
+qiime dada2 denoise-paired
+--i-demultiplexed-seqs /PLAWES/processed-data/all-samples/1-demux/trimmed-demux.qza 
+--p-trunc-len-f 205
+--p-trunc-len-r 245
+--p-chimera-method 'consensus' 
+--p-pooling-method 'pseudo' 
+--p-n-threads 16 
+--o-table /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-table.qza
+--o-representative-sequences /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-repseqs.qza 
+--o-denoising-stats /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-stats.qza 
+--verbose 
+
