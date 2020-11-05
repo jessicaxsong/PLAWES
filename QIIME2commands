@@ -12,7 +12,7 @@ conda activate qiime2-2020.2
 
 qiime tools import \
 --type 'SampleData[PairedEndSequencesWithQuality]' \  # type of sequences input
---input-path # filepath of Manifest file (.csv, comma separated)
+--input-path # filepath of Manifest file (.csv, tab separated)
 --output-path # filepath/paired-end-demux.qza  # where to save processed files
 --input-format PairedEndFastqManifestPhred33V2 # format is dependent on phred format and paired/single reads
 
