@@ -28,3 +28,82 @@ qiime dada2 denoise-paired
 --o-denoising-stats /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-stats.qza 
 --verbose 
 
+# visualize output
+qiime metadata tabulate \
+--m-input-file /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-stats.qza
+--o-visualization /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-stats.qzv
+
+qiime feature-table summarize \
+--i-table /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-table.qza
+--m-sample-metadata-file /PLAWES/ultimate-sample-metadata.txt
+--o-visualization /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-table.qzv
+
+qiime feature-table tabulate-seqs \
+--i-data /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-repseqs.qza 
+--o-visualization /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-repseqs.qzv
+
+# filter out singletons
+(https://forum.qiime2.org/t/singletons-still-present-after-dada2/4308)
+
+qiime feature-table filter-features \
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table.qza' 
+--p-min-frequency 2 
+--o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
+
+qiime feature-table summarize \
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
+--m-sample-metadata-file '/home/jsong/Song/PLAWES/metadata-files/ultimate-sample-metadata.txt' 
+--o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qzv' 
+
+qiime feature-table filter-seqs \
+--i-data '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-repseqs.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-table-no-singletons.qza' 
+--o-filtered-data '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza'
+
+qiime feature-table tabulate-seqs \
+--i-data '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza' 
+--o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qzv' 
+
+# import reference sequences
+# get silva references
+wget https://www.arb-silva.de/fileadmin/silva_databases/qiime/Silva_132_release.zip
+unzip Silva_132_release.zip
+rm Silva_132_release.zip
+
+# import reference sequences (SILVA 132 NR99 SSU)
+
+qiime tools import \
+--type 'FeatureData[Sequence]'
+--input-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/Silva_132_release/SILVA_132_QIIME_release/rep_set/rep_set_16S_only/99/silva_132_99_16S.fna'
+--output-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-seqs.qza'
+
+# import taxonomy strings
+--type 'FeatureData[Taxonomy]'
+--input-format HeaderlessTSVTaxonomyFormat
+--input-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/Silva_132_release/SILVA_132_QIIME_release/taxonomy/16S_only/99/majority_taxonomy_7_levels.txt'
+--output-path '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-taxonomy.qza'
+
+# extract V3-V4 region from reference
+qiime feature-classifier extract-reads
+--i-sequences '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/99-otus-16S-seqs.qza' 
+--p-f-primer CCTACGGGNGGCWGCAG 
+--p-r-primer GACTACHVGGGTATCTAAKCC 
+--p-min-length 200 
+--p-max-length 600 
+--o-reads '/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16S_refseqs_V3-V4.qza' 
+--verbose 
+&>'/home/jsong/Song/PLAWES/Processed/TaxonomyClassifier/SILVA 132/16S_refseqs_V3-V4_training.log'
+
+# train classifier
+qiime feature-classifier fit-classifier-naive-bayes \
+--i-reference-reads '/home/jsong/Song/PLAWES/processed-data/taxonomy-classifier/SILVA 132/16S_refseqs_V3-V4.qza' 
+--i-reference-taxonomy '/home/jsong/Song/PLAWES/processed-data/taxonomy-classifier/SILVA 132/99-otus-16S-taxonomy.qza' 
+--p-feat-ext--ngram-range [7,7] 
+--o-classifier '/home/jsong/Song/PLAWES/processed-data/taxonomy-classifier/SILVA 132/p-feat-ext--ngram-range/7,7/classifier_V3-V4_7,7.qza'
+
+# classify taxonomies
+qiime feature-classifier classify-sklearn \
+--i-classifier '/home/jsong/Song/PLAWES/processed-data/taxonomy-classifier/SILVA 132/p-feat-ext--ngram-range/7,7/classifier_V3-V4_7,7.qza' 
+--i-reads '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza' 
+--p-confidence 0.7 
+--o-classification '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza'
