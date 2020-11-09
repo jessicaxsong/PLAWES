@@ -142,3 +142,7 @@ qiime tools extract \
 --input-path '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
 --output-path '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS' 
 
+biom convert 
+-i '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.biom' 
+-o '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.tsv' --to-tsv
+
