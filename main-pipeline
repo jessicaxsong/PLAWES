@@ -138,11 +138,11 @@ qiime taxa barplot \
 --m-metadata-file '/home/jsong/Song/PLAWES/metadata-files/ultimate-sample-metadata.txt' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/5-taxa-barplot/taxa-barplot.qzv'
 
-qiime tools extract \
+# export feature table
+qiime tools export \
 --input-path '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
 --output-path '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS' 
 
-biom convert 
--i '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.biom' 
--o '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.tsv' --to-tsv
+# convert .biom to .tsv
+biom convert -i '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.biom' -o '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.tsv' --to-tsv
 
