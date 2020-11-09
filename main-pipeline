@@ -138,5 +138,7 @@ qiime taxa barplot \
 --m-metadata-file '/home/jsong/Song/PLAWES/metadata-files/ultimate-sample-metadata.txt' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/5-taxa-barplot/taxa-barplot.qzv'
 
-
+qiime tools extract \
+--input-path '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
+--output-path '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS' 
 
