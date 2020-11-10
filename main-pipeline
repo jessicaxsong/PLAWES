@@ -112,22 +112,16 @@ qiime metadata tabulate \
 --m-input-file '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qzv' 
 
-# filter out 'missing features'
-qiime feature-table filter-features 
---i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table.qza' 
---m-metadata-file '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
---o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table-id-filtered.qza' 
-
 # check taxonomies
 qiime taxa barplot 
---i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table-id-filtered.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
 --i-taxonomy '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
 --m-metadata-file '/home/jsong/Song/PLAWES/metadata-files/ultimate-sample-metadata.txt' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/5-taxa-barplot/taxa-barplot.qzv'
 
 # filter out 'noise'
 qiime taxa filter-table \
---i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table-id-filtered.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
 --i-taxonomy '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
 --p-exclude Unassigned,mitochondria,chloroplast,D_0__Archaea 
 --o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
