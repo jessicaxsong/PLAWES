@@ -137,6 +137,17 @@ qiime tools export \
 --input-path '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
 --output-path '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS' 
 
+qiime tools export \
+--input-path '/home/jsong/Song/PLAWES/processed-data/all-sample/4-classify-sklearn/classified-repseqs.qza'
+--output-path '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS' 
+
+cp '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/taxonomy.tsv' biom-taxonomy.tsv
+
+# change the first line of biom-taxonomy.tsv (i.e. the header) to this: #OTU_ID	taxonomy	confidence
+
+# add metadata to .biom file
+biom add-metadata -i exported/feature-table.biom -o table-with-taxonomy.biom --observation-metadata-fp biom-taxonomy.tsv --sc-separated taxonomy
+
 # convert .biom to .tsv
 biom convert -i '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.biom' -o '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.tsv' --to-tsv
 
