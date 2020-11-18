@@ -21,7 +21,7 @@ qiime dada2 denoise-paired
 --p-trunc-len-f 205
 --p-trunc-len-r 245
 --p-chimera-method 'consensus' 
---p-pooling-method 'pseudo' 
+--p-pooling-method 'independent' 
 --p-n-threads 16 
 --o-table /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-table.qza
 --o-representative-sequences /PLAWES/processed-data/all-samples/2-dada2/7-205-245/trimmed-dada-repseqs.qza 
