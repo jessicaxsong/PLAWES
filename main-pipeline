@@ -64,6 +64,18 @@ qiime feature-table tabulate-seqs \
 --i-data '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qzv' 
 
+# build insertion tree
+wget  "https://data.qiime2.org/2019.10/common/sepp-refs-silva-128.qza"
+
+qiime fragment-insertion sepp \
+--i-representative-sequences '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza'
+--i-reference-database '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/sepp-refs-silva-128.qza'
+--p-threads 16
+--o-tree '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-tree.qza'
+--o-placements '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-placements.qza'
+
+
+
 # import reference sequences
 # get silva references
 wget https://www.arb-silva.de/fileadmin/silva_databases/qiime/Silva_132_release.zip
