@@ -48,8 +48,7 @@ qiime feature-table tabulate-seqs \
 qiime feature-table filter-features \
 --i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/trimmed-dada-table.qza' 
 --p-min-frequency 3 # <0.01% per sample
---p-min-samples 2
---o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/rare-filtered-table.qza' 
+--o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-table.qza' 
 
 qiime feature-table summarize \
 --i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-table.qza' 
