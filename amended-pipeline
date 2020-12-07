@@ -64,17 +64,6 @@ qiime feature-table tabulate-seqs \
 --i-data '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-repseqs.qza'
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-repseqs.qzv'
 
-# build insertion tree
-wget  "https://data.qiime2.org/2019.10/common/sepp-refs-silva-128.qza"
-
-qiime fragment-insertion sepp \
---i-representative-sequences '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-repseqs.qza'
---i-reference-database '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/sepp-refs-silva-128.qza'
---p-threads 16
---o-tree '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-tree.qza'
---o-placements '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-placements.qza'
-
-
 
 # import reference sequences
 # get silva references
@@ -116,7 +105,7 @@ qiime feature-classifier fit-classifier-naive-bayes \
 # classify taxonomies
 qiime feature-classifier classify-sklearn \
 --i-classifier '/home/jsong/Song/PLAWES/processed-data/taxonomy-classifier/SILVA 132/p-feat-ext--ngram-range/7,7/classifier_V3-V4_7,7.qza' 
---i-reads '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-singletons/dada-repseqs-no-singletons.qza' 
+--i-reads '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-repseqs.qza'
 --p-confidence 0.7 
 --o-classification '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza'
 
@@ -126,17 +115,23 @@ qiime metadata tabulate \
 
 # check taxonomies
 qiime taxa barplot 
---i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-table.qza' 
 --i-taxonomy '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
 --m-metadata-file '/home/jsong/Song/PLAWES/metadata-files/ultimate-sample-metadata.txt' 
 --o-visualization '/home/jsong/Song/PLAWES/processed-data/all-samples/5-taxa-barplot/taxa-barplot.qzv'
 
 # filter out 'noise'
 qiime taxa filter-table \
---i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/2-dada2/7-205-245*/dada-table-no-singletons.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-table.qza' 
 --i-taxonomy '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/classified-repseqs.qza' 
 --p-exclude Unassigned,mitochondria,chloroplast,D_0__Archaea 
 --o-filtered-table '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
+
+qiime feature-table filter-seqs \
+--i-data '/home/jsong/Song/PLAWES/processed-data/all-samples/3-filter-features/independent/rare-filtered/rare-filtered-repseqs.qza' 
+--i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/independent/rare-filtered/filtered-feature-table.qza'  #feature-filtered table
+--o-filtered-data '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/independent/rare-filtered/feature-filtered-repseqs.qza' 
+
 
 qiime taxa barplot \
 --i-table '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/filtered-feature-table.qza' 
@@ -163,3 +158,13 @@ biom add-metadata -i exported/feature-table.biom -o table-with-taxonomy.biom --o
 # convert .biom to .tsv
 biom convert -i '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/table-with-taxonomy.biom' -o '/home/jsong/Song/PLAWES/processed-data/all-samples/6-SRS/feature-table.tsv' --to-tsv --header-key taxonomy
 
+
+# build insertion tree
+wget  "https://data.qiime2.org/2019.10/common/sepp-refs-silva-128.qza"
+
+qiime fragment-insertion sepp \
+--i-representative-sequences '/home/jsong/Song/PLAWES/processed-data/all-samples/4-classify-sklearn/independent/rare-filtered/feature-filtered-repseqs.qza' 
+--i-reference-database '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/sepp-refs-silva-128.qza'
+--p-threads 16
+--o-tree '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-tree.qza'
+--o-placements '/home/jsong/Song/PLAWES/processed-data/all-samples/7-phylogenetic-tree/insertion-placements.qza'
